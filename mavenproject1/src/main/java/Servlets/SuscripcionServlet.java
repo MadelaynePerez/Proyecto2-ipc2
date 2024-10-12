@@ -4,9 +4,10 @@
  */
 package Servlets;
 
-import Exceptions.InvalidDataException;
+import Controller.SuscripcionController;
+import Modelos.Suscripcion;
 import Services.RevistaServices;
-import Services.UsuarioServices;
+import Services.SuscripcionServices;
 import Utileria.JsonUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -15,17 +16,17 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.sql.SQLException;
+import static jakarta.ws.rs.client.Entity.json;
 
 /**
  *
  * @author DELL
  */
-@WebServlet(name = "UsuarioServlet", urlPatterns = {"/UsuarioServlet"})
-public class UsuarioServlet extends HttpServlet {
-    JsonUtil json = new JsonUtil();
-    UsuarioServices usuarioSer = new UsuarioServices();
-
+@WebServlet(name = "SuscripcionServlet", urlPatterns = {"/SuscripcionServlet"})
+public class SuscripcionServlet extends HttpServlet {
+private JsonUtil json = new JsonUtil(); // Inicialización de JsonUtil
+    private RevistaServices revistaSer = new RevistaServices(); // Inicialización de RevistaServices
+    private SuscripcionController suscripcionController = new SuscripcionController(); // Instancia del controlador
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -43,10 +44,10 @@ public class UsuarioServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet UsuarioServlet</title>");
+            out.println("<title>Servlet SuscripcionServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet UsuarioServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet SuscripcionServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -78,15 +79,24 @@ public class UsuarioServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-         String recibirBody = json.getBody(request);
+         String recibirBody = json.getBody(request); 
 
         try {
-            // Llamar al método que crea el usuario en el servicio
-            usuarioSer.crearUsuario(recibirBody, response);
-        } catch (InvalidDataException | SQLException ex) {
-            ex.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // Enviar respuesta 400 en caso de error
+            // Deserializar JSON a objeto Suscripcion
+            Suscripcion suscripcion = (Suscripcion) json.JsonStringAObjeto(recibirBody, Suscripcion.class);
+            // Crear la suscripción
+            String resultado = suscripcionController.crearSuscripcion(suscripcion);
+
+            // Enviar la respuesta al cliente
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.getWriter().write(resultado);
+        } catch (Exception e) {
+           
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("Error: " + e.getMessage());
         }
+    
     }
 
     /**

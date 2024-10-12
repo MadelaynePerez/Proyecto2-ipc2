@@ -28,11 +28,11 @@ public class RevistaServices {
      // Deserializa el JSON en un objeto Revista
     Revistaa revista = (Revistaa) jsonR.JsonStringAObjeto(body, Revistaa.class);
 
-    // Obtener la fecha de creación desde el objeto revista (que ya se debería estar en formato correcto)
-      String fechaDeCreacion = revista.getFechaDeCreacion(); // Esta ya es un java.sql.Date
+    // Obtener la fecha de creación desde el objeto revista 
+      String fechaDeCreacion = revista.getFechaDeCreacion(); 
 
-    // Aquí puedes llamar a tu método de inserción en la base de datos
-    revistaController.CrearRevista(revista); // No es necesario cambiar el método
+    
+    revistaController.CrearRevista(revista); //
 
     response.setStatus(HttpServletResponse.SC_OK);
     }

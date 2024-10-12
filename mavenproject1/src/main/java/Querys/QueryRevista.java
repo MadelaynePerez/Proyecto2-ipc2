@@ -8,6 +8,7 @@ import Modelos.Coneccion;
 import Modelos.Revistaa;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -42,4 +43,32 @@ public class QueryRevista {
     
     return false;
 }
+    public boolean existeRevista(long idRevista) throws SQLException {
+        Connection connection = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            connection = Coneccion.getConnection();
+            String sql = "SELECT COUNT(*) FROM revista WHERE id_revista = ?";
+            pstmt = connection.prepareStatement(sql);
+            pstmt.setLong(1, idRevista);
+            rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1) > 0; 
+            }
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (pstmt != null) {
+                pstmt.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return false; // Si no se encuentra, retorna false
+    }
 }
